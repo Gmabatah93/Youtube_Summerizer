@@ -1,4 +1,3 @@
-
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -7,6 +6,7 @@ import pandas as pd
 
 import os
 from dotenv import load_dotenv
+from src.evaluation import evaluate_transcripts
 
 load_dotenv()
 
@@ -110,10 +110,12 @@ def get_video_details(video_ids, api_key):
     for video_id in video_ids: 
         transcript_text = None
         try:
+            print("FETCH TRANSCRIPT" + "=" * 20)
             print(f"Fetching transcript for video {video_id}...")
             transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en'])
             transcript_text = " ".join([entry['text'] for entry in transcript])
             print(f"Successfully fetched transcript for {video_id}")
+            print("---" * 20)
             transcripts_map[video_id] = transcript_text
         except Exception as e:
             print(f"Error fetching transcript for Video ID {video_id}: {str(e)}")
@@ -137,28 +139,42 @@ def get_video_details(video_ids, api_key):
     print("\nMapping transcripts to DataFrame...")
     video_df['transcript'] = video_df['video_id'].map(transcripts_map)
     
-    # Print detailed transcript statistics
-    total_videos = len(video_df)
-    videos_with_transcripts = video_df['transcript'].notna().sum()
-    videos_without_transcripts = video_df['transcript'].isna().sum()
+    # Run transcript evaluation
+    print("\nEvaluating transcript quality...")
+    metrics = evaluate_transcripts(video_df)
     
+    # Add quality scores to DataFrame
+    video_df['quality_score'] = video_df['video_id'].map(metrics.quality_scores)
+    video_df['quality_reason'] = video_df['video_id'].map(metrics.quality_reasons)
+    
+    # Print comprehensive statistics
     print(f"\nTranscript Statistics:")
-    print(f"Total videos: {total_videos}")
-    print(f"Videos with transcripts: {videos_with_transcripts}")
-    print(f"Videos without transcripts: {videos_without_transcripts}")
+    print(f"Total videos: {metrics.total_videos}")
+    print(f"Videos with transcripts: {metrics.videos_with_transcripts}")
+    print(f"Coverage rate: {metrics.coverage_rate:.2f}%")
+    print(f"Average quality score: {metrics.avg_quality_score:.1f}/5")
+    print(f"High quality transcripts: {metrics.high_quality_count}")
+    print(f"Quality pass rate: {metrics.quality_rate:.1f}%")
     
-    if videos_without_transcripts > 0:
-        print("\nVideos missing transcripts:")
-        missing_transcripts = video_df[video_df['transcript'].isna()]
-        for _, row in missing_transcripts.iterrows():
-            print(f"Title: {row['title']}")
-            print(f"URL: {row['url']}")
+    if metrics.failed_videos:
+        print("\nFailed or Low Quality Videos:")
+        for video_id in metrics.failed_videos:
+            video = video_df[video_df['video_id'] == video_id].iloc[0]
+            print(f"Title: {video['title']}")
+            print(f"URL: {video['url']}")
+            print(f"Quality Score: {metrics.quality_scores[video_id]}/5")
+            print(f"Reason: {metrics.quality_reasons[video_id]}")
             print("---")
 
-    # Fix datetime
+    # Fix datetime (keep your existing datetime handling)
     if not video_df.empty:
         video_df['publish_time'] = pd.to_datetime(video_df['publish_time'])
         video_df['publish_time'] = video_df['publish_time'].dt.strftime("%B %d, %Y at %I:%M %p")
+    
+    # Store evaluation metrics in DataFrame attributes
+    video_df.attrs['transcript_coverage_rate'] = metrics.coverage_rate
+    video_df.attrs['transcript_quality_rate'] = metrics.quality_rate
+    video_df.attrs['evaluation_timestamp'] = metrics.timestamp
         
     return video_df
 
