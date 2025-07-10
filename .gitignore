@@ -1,0 +1,42 @@
+# Ignore data folder
+data/
+# Ignore Python cache files
+__pycache__/
+
+# Ignore .env
+.env
+
+# Ignore test files
+test.py
+
+# Virtual Environment
+.venv/
+env/
+ENV/
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Vector store files
+chroma_db/
+qdrant_db/
+
+# Logs
+*.log
+.langchain.db
+.langsmith/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
