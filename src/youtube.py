@@ -1,9 +1,8 @@
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from youtube_transcript_api import YouTubeTranscriptApi
-
 import pandas as pd
-
+import time  # Add time import
 import os
 from dotenv import load_dotenv
 from src.evaluation import evaluate_transcripts
@@ -45,19 +44,14 @@ def search_videos(topic, api_key, max_results=20):
         print(f"An unexpected error occurred during video search: {e}")
         return []
 
-def get_video_details(video_ids, api_key):
+def get_video_details(video_ids, api_key, delay: float = 1.0):
     """
-    Description:
-        Retrieves detailed information about a list of YouTube videos, 
-        including transcriptsmetadata and statistics.
-
+    Get video details and transcripts with rate limiting.
+    
     Args:
-        video_ids (list): A list of YouTube video IDs for which details are to be retrieved.
-        api_key (str): The API key for accessing the YouTube Data API.
-
-    Returns:
-        pd.DataFrame: A pandas DataFrame containing video details such as 
-        title, author, description, publish time, view count, and transcripts.
+        video_ids: List of YouTube video IDs
+        api_key: YouTube API key
+        delay: Time to wait between requests in seconds
     """
 
     # Initialize the YouTube API client
@@ -103,33 +97,39 @@ def get_video_details(video_ids, api_key):
             print(f"An unexpected error occurred for batch {batch_ids}: {e}")
             continue
     
-    ### Seperate LOOP: fetch transcripts ################
+    ### Separate LOOP: fetch transcripts ################
     transcripts_map = {}
-    # - this ensures that even if a video's metadata fetch failed, we still attempt its transcript,
-    # - and it avoids issues if the order or number of successfully fetched videos differs from original video_ids.
     for video_id in video_ids: 
         transcript_text = None
         try:
             print("FETCH TRANSCRIPT" + "=" * 20)
             print(f"Fetching transcript for video {video_id}...")
+            
+            # Add delay before request
+            time.sleep(delay)
+            
             transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en'])
             transcript_text = " ".join([entry['text'] for entry in transcript])
             print(f"Successfully fetched transcript for {video_id}")
             print("---" * 20)
             transcripts_map[video_id] = transcript_text
+            
         except Exception as e:
             print(f"Error fetching transcript for Video ID {video_id}: {str(e)}")
-            # Try fetching with auto-generated captions
             try:
-                print(f"Attempting to fetch auto-generated transcript for {video_id}...")
-                transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en'], preserve_formatting=True)
+                print(f"Attempting to fetch auto-generated transcript...")
+                time.sleep(delay)  # Add delay before retry
+                transcript = YouTubeTranscriptApi.get_transcript(
+                    video_id, 
+                    languages=['en'], 
+                    preserve_formatting=True
+                )
                 transcript_text = " ".join([entry['text'] for entry in transcript])
-                print(f"Successfully fetched auto-generated transcript for {video_id}")
+                print(f"Successfully fetched auto-generated transcript")
                 transcripts_map[video_id] = transcript_text                
             except Exception as auto_e:
                 print(f"Error fetching auto-generated transcript: {str(auto_e)}")
                 transcripts_map[video_id] = None
-            
 
     # Create a DataFrame
     video_df = pd.DataFrame(video_data_list)
