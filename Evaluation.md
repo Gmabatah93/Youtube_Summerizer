@@ -14,15 +14,7 @@ This tier focuses on evaluating the individual building blocks of the system.
   - **Implementation**: A post-processing step that uses a small, fast LLM to spot-check transcripts for gibberish or significant formatting errors.
   - **Goal**: Identify and flag low-quality transcripts that might pollute the vector store.
 
-### 2. Chunking Strategy Evaluation
-- **Goal**: Compare the effectiveness of `process_documents_recursive` vs. `process_documents_semantic`.
-- **Methodology**:
-  - Create a small, representative "golden dataset" of 3-5 video transcripts.
-  - Run both chunking functions on this dataset.
-  - **Human Evaluation**: Manually review the generated chunks. Does the semantic chunker produce more coherent, contextually-complete chunks than the recursive splitter?
-  - **Outcome**: Choose the chunking strategy that best preserves meaning for the RAG pipeline.
-
-### 3. LLM & Prompt Evaluation
+### 2. LLM & Prompt Evaluation
 - **Goal**: Determine the best-performing model and prompt template for our tasks.
 - **Methodology (A/B Testing)**:
   - Utilize the model-switching capability in `app.py`.
@@ -34,26 +26,24 @@ This tier focuses on evaluating the individual building blocks of the system.
 
 This tier evaluates how well the components work together.
 
-### [cite_start]1. Agent Router Evaluation 
+### 1. Agent Router Evaluation 
 - **Goal**: To measure the accuracy of the `decide_action` routing logic in `workflow.py`.
 - **Methodology**:
-  - [cite_start]**Create a Diverse Test Dataset [cite: 24]**: Develop a list of 50+ user queries.
+  - **Create a Diverse Test Dataset**: Develop a list of 50+ user queries.
     - Include queries that clearly require video context (e.g., "summarize the youtube videos on...").
     - Include queries that are general knowledge (e.g., "what is a large language model?").
     - Include challenging edge cases and ambiguous queries.
-  - **Labeling**: Manually label each query with the "correct" action: `SEARCH_VIDEOS` or `DIRECT_ANSWER`.
-  - [cite_start]**Automated Evaluation [cite: 20]**: Write a script that runs each query through the `decide_action` function and compares its output to the label.
   - **Metric**: Classification Accuracy (Correct Decisions / Total Queries).
-  - [cite_start]**Improvement Cycle [cite: 28]**: Use the failing examples to iteratively improve the routing logic (e.g., move from simple keyword matching to an LLM-based classifier).
+  - **Improvement Cycle**: Use the failing examples to iteratively improve the routing logic (e.g., move from simple keyword matching to an LLM-based classifier).
 
-### [cite_start]2. RAG Pipeline Evaluation [cite: 13]
+### 2. RAG Pipeline Evaluation
 - **Goal**: To measure the quality of the "SEARCH_VIDEOS" path from retrieval to generation.
 - **Methodology (LLM-as-a-Judge)**: For a set of test queries that trigger the RAG path:
-  - [cite_start]**Retrieval Quality **:
+  - **Retrieval Quality**:
     - **Context Precision**: An evaluator LLM checks: "Are the retrieved document chunks relevant for answering the query?" (Score 1-5).
     - **Context Recall**: An evaluator LLM checks: "Was any critical information missing from the context that was needed to fully answer the query?"
   - **Generation Quality**:
-    - [cite_start]**Faithfulness / Factual Consistency [cite: 16, 40]**: An evaluator LLM checks the final response against the provided context: "Does the generated answer contradict or hallucinate information not present in the source documents?"
+    - **Faithfulness / Factual Consistency**: An evaluator LLM checks the final response against the provided context: "Does the generated answer contradict or hallucinate information not present in the source documents?"
     - **Answer Relevance**: An evaluator LLM checks the final response against the original query: "Does the answer directly and satisfactorily address the user's question?"
 
 ## [cite_start]Tier 3: End-to-End & System-Level Evaluation 

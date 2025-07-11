@@ -6,6 +6,7 @@ from langchain_core.documents import Document
 from langchain_core.language_models.chat_models import BaseChatModel
 from langgraph.graph import StateGraph, END
 from langsmith import traceable
+from src.rag_evaluation import evaluate_rag_response
 
 import uuid
 from src.prompts import get_decision_prompt, get_rag_prompt, get_direct_prompt
@@ -85,6 +86,15 @@ def create_youtube_rag_chain(vectorstore: Any, llm: BaseChatModel):
                 "query": state["query"]
             }).content
 
+            # Evaluate RAG quality if in testing mode
+            if state.get("evaluate_rag", False):
+                metrics = evaluate_rag_response(
+                    query=state["query"],
+                    retrieved_chunks=state["context"],
+                    generated_response=state["response"]
+                )
+                state["rag_metrics"] = metrics
+            
             return state
         except Exception as e:
             state["error"] = f"Generation error: {str(e)}"
