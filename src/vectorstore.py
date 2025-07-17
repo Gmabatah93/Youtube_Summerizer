@@ -8,6 +8,7 @@ from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams   
 
+
 # Documents Recursive Processing
 def process_documents_recursive(video_df):
     # Clean and combine content

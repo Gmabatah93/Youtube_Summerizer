@@ -98,11 +98,11 @@ def get_video_details(video_ids, api_key, delay: float = 1.0):
             continue
     
     ### Separate LOOP: fetch transcripts ################
+    print("=" * 20 + " FETCH TRANSCRIPT " + "=" * 20)
     transcripts_map = {}
     for video_id in video_ids: 
         transcript_text = None
         try:
-            print("FETCH TRANSCRIPT" + "=" * 20)
             print(f"Fetching transcript for video {video_id}...")
             
             # Add delay before request
@@ -139,42 +139,43 @@ def get_video_details(video_ids, api_key, delay: float = 1.0):
     print("\nMapping transcripts to DataFrame...")
     video_df['transcript'] = video_df['video_id'].map(transcripts_map)
     
-    # Run transcript evaluation
-    print("\nEvaluating transcript quality...")
-    metrics = evaluate_transcripts(video_df)
+    # DECIDED NOT TO INCLUDE EVALUATION IN THIS FUNCTION IN THE FRONTEND
+    # # Run transcript evaluation
+    # print("\nEvaluating transcript quality...")
+    # metrics = evaluate_transcripts(video_df)
     
-    # Add quality scores to DataFrame
-    video_df['quality_score'] = video_df['video_id'].map(metrics.quality_scores)
-    video_df['quality_reason'] = video_df['video_id'].map(metrics.quality_reasons)
+    # # Add quality scores to DataFrame
+    # video_df['quality_score'] = video_df['video_id'].map(metrics.quality_scores)
+    # video_df['quality_reason'] = video_df['video_id'].map(metrics.quality_reasons)
     
-    # Print comprehensive statistics
-    print(f"\nTranscript Statistics:")
-    print(f"Total videos: {metrics.total_videos}")
-    print(f"Videos with transcripts: {metrics.videos_with_transcripts}")
-    print(f"Coverage rate: {metrics.coverage_rate:.2f}%")
-    print(f"Average quality score: {metrics.avg_quality_score:.1f}/5")
-    print(f"High quality transcripts: {metrics.high_quality_count}")
-    print(f"Quality pass rate: {metrics.quality_rate:.1f}%")
+    # # Print comprehensive statistics
+    # print(f"\nTranscript Statistics:")
+    # print(f"Total videos: {metrics.total_videos}")
+    # print(f"Videos with transcripts: {metrics.videos_with_transcripts}")
+    # print(f"Coverage rate: {metrics.coverage_rate:.2f}%")
+    # print(f"Average quality score: {metrics.avg_quality_score:.1f}/5")
+    # print(f"High quality transcripts: {metrics.high_quality_count}")
+    # print(f"Quality pass rate: {metrics.quality_rate:.1f}%")
     
-    if metrics.failed_videos:
-        print("\nFailed or Low Quality Videos:")
-        for video_id in metrics.failed_videos:
-            video = video_df[video_df['video_id'] == video_id].iloc[0]
-            print(f"Title: {video['title']}")
-            print(f"URL: {video['url']}")
-            print(f"Quality Score: {metrics.quality_scores[video_id]}/5")
-            print(f"Reason: {metrics.quality_reasons[video_id]}")
-            print("---")
+    # if metrics.failed_videos:
+    #     print("\nFailed or Low Quality Videos:")
+    #     for video_id in metrics.failed_videos:
+    #         video = video_df[video_df['video_id'] == video_id].iloc[0]
+    #         print(f"Title: {video['title']}")
+    #         print(f"URL: {video['url']}")
+    #         print(f"Quality Score: {metrics.quality_scores[video_id]}/5")
+    #         print(f"Reason: {metrics.quality_reasons[video_id]}")
+    #         print("---")
 
-    # Fix datetime (keep your existing datetime handling)
-    if not video_df.empty:
-        video_df['publish_time'] = pd.to_datetime(video_df['publish_time'])
-        video_df['publish_time'] = video_df['publish_time'].dt.strftime("%B %d, %Y at %I:%M %p")
+    # # Fix datetime (keep your existing datetime handling)
+    # if not video_df.empty:
+    #     video_df['publish_time'] = pd.to_datetime(video_df['publish_time'])
+    #     video_df['publish_time'] = video_df['publish_time'].dt.strftime("%B %d, %Y at %I:%M %p")
     
-    # Store evaluation metrics in DataFrame attributes
-    video_df.attrs['transcript_coverage_rate'] = metrics.coverage_rate
-    video_df.attrs['transcript_quality_rate'] = metrics.quality_rate
-    video_df.attrs['evaluation_timestamp'] = metrics.timestamp
+    # # Store evaluation metrics in DataFrame attributes
+    # video_df.attrs['transcript_coverage_rate'] = metrics.coverage_rate
+    # video_df.attrs['transcript_quality_rate'] = metrics.quality_rate
+    # video_df.attrs['evaluation_timestamp'] = metrics.timestamp
         
     return video_df
 
