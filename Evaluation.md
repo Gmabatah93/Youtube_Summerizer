@@ -7,9 +7,8 @@ This document outlines the multi-layered evaluation strategy for the YouTube Sum
 This tier focuses on evaluating the individual building blocks of the system.
 
 ### 1. Data Ingestion & Quality
-- **Metric**: Transcript Coverage Rate
-  - **Implementation**: The existing logging in `youtube.py` that counts successful vs. failed transcript fetches.
-  - **Goal**: >90% transcript coverage for processed videos.
+- **Metric**: Transcript Coverage Ratio
+  - **Explanation**: to quantify how many videos have usable transcripts, which directly impacts the effectiveness of downstream summarization and retrieval. High coverage ensures the system can process and summarize most videos, minimizing gaps in user experience.
 - **Metric**: Transcript Quality Check
   - **Implementation**: A post-processing step that uses a small, fast LLM to spot-check transcripts for gibberish or significant formatting errors.
   - **Goal**: Identify and flag low-quality transcripts that might pollute the vector store.

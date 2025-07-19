@@ -48,7 +48,7 @@ def evaluate_transcripts(
     llm = ChatOpenAI(
         model=model_name,
         temperature=0.0,
-        max_tokens=10
+        max_tokens=50
     )
     
     # Initialize tracking
@@ -61,7 +61,7 @@ def evaluate_transcripts(
     for _, row in df.iterrows():
         video_id = row['video_id']
         transcript = row.get('transcript')
-
+        
         if pd.isna(transcript):
             failed_videos.append(video_id)
             failure_reasons[video_id] = "Missing transcript"
@@ -69,6 +69,11 @@ def evaluate_transcripts(
             quality_reasons[video_id] = "No transcript available"
             continue
 
+        if len(transcript) < 100:  # Too short
+            quality_scores[video_id] = 1
+            quality_reasons[video_id] = "Transcript too short"
+            continue
+        
         # Quality check prompt
         prompt = f"""You are a transcript quality analyst. Evaluate this full video transcript for coherence, formatting, and usability.
 

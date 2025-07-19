@@ -155,6 +155,7 @@ def store_video_details(
     import os
     from datetime import datetime
     
+    print(f"\nSTORING FOR TOPIC: {topic}" + "=" * 20)
     # Create timestamp and format topic for filenames
     timestamp = timestamp or datetime.now().strftime("%Y%m%d_%H%M%S")
     formatted_topic = topic.lower().replace(' ', '_')

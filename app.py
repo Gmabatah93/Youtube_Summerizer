@@ -58,8 +58,12 @@ if not st.session_state.chat_ready:
 
     if submit_button and topic:
         with st.spinner("Searching YouTube, processing transcripts, and building the RAG assistant..."):
+            # GETTING
             video_ids = search_videos(topic=topic, api_key=os.environ.get('YOUTUBE_API_KEY'), max_results=max_results)
             video_df = get_video_details(video_ids=video_ids, api_key=os.environ.get('YOUTUBE_API_KEY'))
+            
+            # STORING
+            # - local file
             path = store_video_details(
                 video_df=video_df,
                 topic=topic,
