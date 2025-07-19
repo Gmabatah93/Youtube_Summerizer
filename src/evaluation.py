@@ -31,7 +31,6 @@ class EvaluationMetrics:
 def evaluate_transcripts(
     df: pd.DataFrame,
     quality_threshold: int = 3,
-    sample_size: int = 200,
     model_name: str = "gpt-3.5-turbo"
 ) -> EvaluationMetrics:
     """
@@ -71,16 +70,27 @@ def evaluate_transcripts(
             continue
 
         # Quality check prompt
-        prompt = f"""You are a transcript quality analyst. Rate this text:
-        1. Score (1-5):
-           1=Unusable, 2=Poor, 3=Fair, 4=Good, 5=Excellent
-        2. Brief reason (max 10 words)
+        prompt = f"""You are a transcript quality analyst. Evaluate this full video transcript for coherence, formatting, and usability.
+
+        Rate on these criteria:
+        - Text coherence and readability
+        - Proper formatting and structure
+        - Content completeness
+        - Overall transcript quality
+
+        Score (1-5):
+        1=Unusable (gibberish/nonsense)
+        2=Poor (major formatting/coherence issues)
+        3=Fair (some issues but usable)
+        4=Good (minor issues)
+        5=Excellent (clean, coherent text)
 
         Format:
         SCORE: [number]
-        REASON: [explanation]
+        REASON: [brief explanation, max 10 words]
 
-        Text: {transcript[:sample_size]}
+        Text to analyze:
+        {transcript}
         """
 
         try:
@@ -127,3 +137,56 @@ def evaluate_transcripts(
         failed_videos=failed_videos,
         failure_reasons=failure_reasons
     )
+
+
+# Test
+# from youtube import load_video_details
+
+# def analyze_stored_videos(topic: str = "how_to_make_mayonnaise", timestamp: str = "20231001_120000"):
+#     """Analyze stored video data for quality and coverage metrics."""
+    
+#     # Load the stored data
+#     video_df = load_video_details(
+#         topic=topic,
+#         timestamp=timestamp,
+#         base_path="/Users/isiomamabatah/Desktop/Python/Projects/Youtube_Summerizer/data/youtube_data"
+#     )
+    
+#     print("\n=== Running Quality Analysis ===")
+#     metrics = evaluate_transcripts(
+#         df=video_df,
+#         quality_threshold=3,
+#         sample_size=200
+#     )
+    
+#     # Print comprehensive analysis
+#     print("\n=== Video Content Analysis Report ===")
+#     print(f"Analysis Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+#     print(f"Topic: {topic}")
+    
+#     print("\nCoverage Metrics:")
+#     print(f"- Total Videos: {metrics.total_videos}")
+#     print(f"- Videos with Transcripts: {metrics.videos_with_transcripts}")
+#     print(f"- Coverage Rate: {metrics.coverage_rate:.1f}%")
+    
+#     print("\nQuality Metrics:")
+#     print(f"- Average Quality Score: {metrics.avg_quality_score:.1f}/5")
+#     print(f"- High Quality Videos: {metrics.high_quality_count}")
+#     print(f"- Quality Pass Rate: {metrics.quality_rate:.1f}%")
+    
+#     print("\nDetailed Quality Analysis:")
+#     for video_id in video_df['video_id']:
+#         score = metrics.quality_scores.get(video_id, 0)
+#         reason = metrics.quality_reasons.get(video_id, "N/A")
+#         title = video_df[video_df['video_id'] == video_id]['title'].iloc[0]
+#         print(f"\nVideo: {title}")
+#         print(f"- Quality Score: {score}/5")
+#         print(f"- Reason: {reason}")
+#         if video_id in metrics.failed_videos:
+#             print(f"- Status: ❌ Failed - {metrics.failure_reasons[video_id]}")
+#         else:
+#             print(f"- Status: ✅ Passed")
+    
+#     return metrics
+
+# metrics = analyze_stored_videos()

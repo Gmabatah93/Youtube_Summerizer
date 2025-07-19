@@ -1,8 +1,6 @@
 # How the YouTube Summarizer Works: A Detailed Breakdown
 
 ## Overview
-https://gemini.google.com/share/b73f1f484949
-
 This document explains the end-to-end process of your application, from the moment a user enters a topic to when they receive an intelligent answer from the chatbot. The entire system operates in two distinct phases.
 
 ## Phase 1: The Setup - Building the Knowledge Base 🏗️
@@ -10,7 +8,7 @@ This initial, one-time process is triggered when a user provides a topic and cli
 
 ### Process Flow
 1. **Topic Submission** (`app.py`)
-   - User enters a search term (e.g., "How to make sourdough bread")
+   - User enters a search term (e.g., "What is Langchain")
    - Input captured via Streamlit web interface
 
 2. **Video Search** (`youtube.py`)
@@ -46,15 +44,6 @@ This initial, one-time process is triggered when a user provides a topic and cli
      - Sets action flag: `SEARCH_VIDEOS` or `DIRECT_ANSWER`
 
 3. **Information Retrieval** (RAG Path)
-   ```mermaid
-   graph TD
-      A[User Query] --> B{Contains 'youtube'?}
-      B -->|Yes| C[Vector Search]
-      B -->|No| D[Direct Answer]
-      C --> E[Context Retrieval]
-      E --> F[Response Generation]
-      D --> F
-   ```
 
 4. **Response Generation** (`workflow.py` & `prompts.py`)
    - **RAG Path:**
@@ -71,21 +60,7 @@ This initial, one-time process is triggered when a user provides a topic and cli
    - Displays response in Streamlit chat window
 
 ## System Architecture
-```mermaid
-graph TD
-    subgraph Frontend
-        A[Streamlit Interface]
-    end
-    subgraph Backend
-        B[YouTube API]
-        C[Vector Store]
-        D[LLM]
-    end
-    A -->|Query| B
-    B -->|Data| C
-    C -->|Context| D
-    D -->|Response| A
-```
+![Picture](data/image/SystemArchitecture.png)
 
 ## Technical Stack
 - **Frontend:** Streamlit
@@ -94,6 +69,3 @@ graph TD
 - **Vector Store:** ChromaDB
 - **LLM:** GPT-4o
 - **Embeddings:** OpenAI
-
-## Getting Started
-[Add installation and setup instructions here]

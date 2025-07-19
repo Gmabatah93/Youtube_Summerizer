@@ -5,7 +5,7 @@ import pandas as pd
 import time  # Add time import
 import os
 from dotenv import load_dotenv
-from src.evaluation import evaluate_transcripts
+import json
 
 load_dotenv()
 
@@ -138,58 +138,131 @@ def get_video_details(video_ids, api_key, delay: float = 1.0):
     # - this correctly aligns transcripts even if some video details failed to fetch.
     print("\nMapping transcripts to DataFrame...")
     video_df['transcript'] = video_df['video_id'].map(transcripts_map)
-    
-    # DECIDED NOT TO INCLUDE EVALUATION IN THIS FUNCTION IN THE FRONTEND
-    # # Run transcript evaluation
-    # print("\nEvaluating transcript quality...")
-    # metrics = evaluate_transcripts(video_df)
-    
-    # # Add quality scores to DataFrame
-    # video_df['quality_score'] = video_df['video_id'].map(metrics.quality_scores)
-    # video_df['quality_reason'] = video_df['video_id'].map(metrics.quality_reasons)
-    
-    # # Print comprehensive statistics
-    # print(f"\nTranscript Statistics:")
-    # print(f"Total videos: {metrics.total_videos}")
-    # print(f"Videos with transcripts: {metrics.videos_with_transcripts}")
-    # print(f"Coverage rate: {metrics.coverage_rate:.2f}%")
-    # print(f"Average quality score: {metrics.avg_quality_score:.1f}/5")
-    # print(f"High quality transcripts: {metrics.high_quality_count}")
-    # print(f"Quality pass rate: {metrics.quality_rate:.1f}%")
-    
-    # if metrics.failed_videos:
-    #     print("\nFailed or Low Quality Videos:")
-    #     for video_id in metrics.failed_videos:
-    #         video = video_df[video_df['video_id'] == video_id].iloc[0]
-    #         print(f"Title: {video['title']}")
-    #         print(f"URL: {video['url']}")
-    #         print(f"Quality Score: {metrics.quality_scores[video_id]}/5")
-    #         print(f"Reason: {metrics.quality_reasons[video_id]}")
-    #         print("---")
+    print(f"Mapped transcripts to {len(video_df)} videos")
 
-    # # Fix datetime (keep your existing datetime handling)
-    # if not video_df.empty:
-    #     video_df['publish_time'] = pd.to_datetime(video_df['publish_time'])
-    #     video_df['publish_time'] = video_df['publish_time'].dt.strftime("%B %d, %Y at %I:%M %p")
-    
-    # # Store evaluation metrics in DataFrame attributes
-    # video_df.attrs['transcript_coverage_rate'] = metrics.coverage_rate
-    # video_df.attrs['transcript_quality_rate'] = metrics.quality_rate
-    # video_df.attrs['evaluation_timestamp'] = metrics.timestamp
-        
     return video_df
 
 
 
 
+def store_video_details(
+    video_df: pd.DataFrame,
+    topic: str,
+    base_path: str = "data/youtube_data",
+    timestamp: str = None
+) -> dict:
+    """Store video details and transcripts for future analysis."""
+    import os
+    from datetime import datetime
+    
+    # Create timestamp and format topic for filenames
+    timestamp = timestamp or datetime.now().strftime("%Y%m%d_%H%M%S")
+    formatted_topic = topic.lower().replace(' ', '_')
+    
+    # Create directory structure
+    subdirs = ['raw_data', 'transcripts', 'metadata']
+    for subdir in subdirs:
+        os.makedirs(f"{base_path}/{subdir}", exist_ok=True)
+    
+    # Prepare paths
+    raw_path = f"{base_path}/raw_data/{formatted_topic}_{timestamp}.csv"
+    transcript_path = f"{base_path}/transcripts/{formatted_topic}_{timestamp}.csv"
+    metadata_path = f"{base_path}/metadata/{formatted_topic}_{timestamp}.json"
+    
+    # Store full raw data
+    video_df.to_csv(raw_path, index=False)
+    
+    # Store transcripts separately
+    transcript_df = video_df[['video_id', 'title', 'transcript']].copy()
+    transcript_df.to_csv(transcript_path, index=False)
+    
+    # Store metadata (convert numpy types to Python native types)
+    metadata = {
+        'topic': topic,
+        'timestamp': timestamp,
+        'total_videos': int(len(video_df)),
+        'videos_with_transcripts': int(video_df['transcript'].notna().sum()),
+        'coverage_rate': float(video_df['transcript'].notna().sum() / len(video_df) * 100),
+        'source_urls': [str(url) for url in video_df['url'].tolist()],
+        'video_ids': [str(vid) for vid in video_df['video_id'].tolist()]
+    }
+    
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata, f, indent=2)
+    
+    print(f"\nStored video details:")
+    print(f"- Raw data: {raw_path}")
+    print(f"- Transcripts: {transcript_path}")
+    print(f"- Metadata: {metadata_path}")
+    
+    return {
+        'raw_path': raw_path,
+        'transcript_path': transcript_path,
+        'metadata_path': metadata_path
+    }
+
+def load_video_details(topic: str = None, timestamp: str = None, base_path: str = "data/youtube_data") -> pd.DataFrame:
+    """
+    Load stored video details and transcripts.
+    
+    Args:
+        topic: Optional topic to load specific data
+        timestamp: Optional timestamp to load specific version
+        base_path: Base directory for data storage
+    
+    Returns:
+        pd.DataFrame: Loaded video details
+    """
+    import glob
+    
+    # Find latest data if topic/timestamp not specified
+    if not (topic and timestamp):
+        pattern = f"{base_path}/raw_data/*.csv"
+        files = glob.glob(pattern)
+        if not files:
+            raise FileNotFoundError("No stored video data found")
+        raw_path = max(files)  # Get most recent
+    else:
+        formatted_topic = topic.lower().replace(' ', '_')
+        raw_path = f"{base_path}/raw_data/{formatted_topic}_{timestamp}.csv"
+    
+    # Load data
+    video_df = pd.read_csv(raw_path)
+    print(f"Loaded video details from: {raw_path}")
+    print(f"Found {len(video_df)} videos")
+    
+    return video_df
+
 # # Test the function
 # video_ids = search_videos(
 #     topic="How to make mayonnaise",
 #     api_key=os.environ['YOUTUBE_API_KEY'],
-#     max_results=5
+#     max_results=3
 # )
 
 # video_details_df = get_video_details(
 #     video_ids=video_ids,
 #     api_key=os.environ['YOUTUBE_API_KEY']
+# )
+
+# path = store_video_details(
+#     video_df=video_details_df,
+#     topic="How to make mayonnaise",
+#     base_path="/Users/isiomamabatah/Desktop/Python/Projects/Youtube_Summerizer/data/youtube_data",
+#     timestamp="20231001_120000"  # Example timestamp, can be replaced with current time
+# )
+
+# # Test Evaluation
+# loaded_video_df = load_video_details(
+#     topic="How to make mayonnaise",
+#     timestamp="20231001_120000",
+#     base_path="/Users/isiomamabatah/Desktop/Python/Projects/Youtube_Summerizer/data/youtube_data"
+# )
+
+# from evaluation import evaluate_transcripts
+
+# metrics = evaluate_transcripts(
+#     df=loaded_video_df,
+#     quality_threshold=0.5,  # Example threshold
+#     sample_size=3 # Example minimum view count
 # )

@@ -1,4 +1,4 @@
-from src.youtube import search_videos, get_video_details
+from src.youtube import search_videos, get_video_details, store_video_details
 from src.vectorstore import process_documents_recursive, process_documents_semantic, create_chroma_vectorstore
 from src.utils import _format_collection_name
 from src.workflow import run_rag_chain
@@ -11,6 +11,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 import os
 from dotenv import load_dotenv
 import streamlit as st
+from datetime import datetime
 
  
 
@@ -59,6 +60,12 @@ if not st.session_state.chat_ready:
         with st.spinner("Searching YouTube, processing transcripts, and building the RAG assistant..."):
             video_ids = search_videos(topic=topic, api_key=os.environ.get('YOUTUBE_API_KEY'), max_results=max_results)
             video_df = get_video_details(video_ids=video_ids, api_key=os.environ.get('YOUTUBE_API_KEY'))
+            path = store_video_details(
+                video_df=video_df,
+                topic=topic,
+                base_path="/Users/isiomamabatah/Desktop/Python/Projects/Youtube_Summerizer/data/youtube_data",
+                timestamp=datetime.now().strftime("%Y%m%d_%H%M%S")
+            )
 
             video_df["Video Title"] = video_df.apply(lambda row: f"[{row['title']}](https://www.youtube.com/watch?v={row['video_id']})", axis=1)
             st.session_state["video_df_display"] = video_df[["Video Title", "author", "publish_time", "view_count"]]
