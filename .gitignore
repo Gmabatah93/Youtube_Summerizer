@@ -9,6 +9,7 @@ __pycache__/
 # Ignore test files
 test.py
 test_api.py
+test_eval.py
 
 # Virtual Environment
 .venv/
