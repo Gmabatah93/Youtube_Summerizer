@@ -60,7 +60,7 @@ This initial, one-time process is triggered when a user provides a topic and cli
    - Displays response in Streamlit chat window
 
 ## System Architecture
-![Picture](data/image/SystemArchitecture.png)
+![Picture](image/SystemArchitecture.png)
 
 ## Technical Stack
 - **Frontend:** Streamlit
