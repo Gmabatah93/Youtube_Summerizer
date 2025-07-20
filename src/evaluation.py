@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List
 from langchain_openai import ChatOpenAI
 import pandas as pd
 import time
@@ -39,7 +39,6 @@ def evaluate_transcripts(
     Args:
         df: DataFrame with video_id and transcript columns
         quality_threshold: Minimum acceptable quality score (1-5)
-        sample_size: Number of characters to analyze per transcript
         model_name: LLM model to use for quality analysis
     """
     start_time = time.time()
@@ -129,69 +128,16 @@ def evaluate_transcripts(
     quality_rate = (high_quality / len(scores) * 100) if scores else 0
 
     return EvaluationMetrics(
-        total_videos=total_videos,
-        videos_with_transcripts=videos_with_transcripts,
-        coverage_rate=coverage_rate,
-        quality_scores=quality_scores,
-        quality_reasons=quality_reasons,
-        avg_quality_score=avg_quality,
-        high_quality_count=high_quality,
-        quality_rate=quality_rate,
-        evaluation_time=time.time() - start_time,
-        timestamp=datetime.now().isoformat(),
+        total_videos=total_videos,                          # How many videos we tried to evaluate
+        videos_with_transcripts=videos_with_transcripts,    # How many actually had transcripts
+        coverage_rate=coverage_rate,                        # Percentage success rate
+        quality_scores=quality_scores,                      # {video_id: score} for each video
+        quality_reasons=quality_reasons,                    # {video_id: reason} AI explanations
+        avg_quality_score=avg_quality,                      # Overall quality average
+        high_quality_count=high_quality,                    # Count of good videos (score >= threshold)
+        quality_rate=quality_rate,                          # Percentage of high-quality videos
+        evaluation_time=time.time() - start_time,           # How long evaluation took
+        timestamp=datetime.now().isoformat(),               # When evaluation was run
         failed_videos=failed_videos,
         failure_reasons=failure_reasons
     )
-
-
-# Test
-# from youtube import load_video_details
-
-# def analyze_stored_videos(topic: str = "how_to_make_mayonnaise", timestamp: str = "20231001_120000"):
-#     """Analyze stored video data for quality and coverage metrics."""
-    
-#     # Load the stored data
-#     video_df = load_video_details(
-#         topic=topic,
-#         timestamp=timestamp,
-#         base_path="/Users/isiomamabatah/Desktop/Python/Projects/Youtube_Summerizer/data/youtube_data"
-#     )
-    
-#     print("\n=== Running Quality Analysis ===")
-#     metrics = evaluate_transcripts(
-#         df=video_df,
-#         quality_threshold=3,
-#         sample_size=200
-#     )
-    
-#     # Print comprehensive analysis
-#     print("\n=== Video Content Analysis Report ===")
-#     print(f"Analysis Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-#     print(f"Topic: {topic}")
-    
-#     print("\nCoverage Metrics:")
-#     print(f"- Total Videos: {metrics.total_videos}")
-#     print(f"- Videos with Transcripts: {metrics.videos_with_transcripts}")
-#     print(f"- Coverage Rate: {metrics.coverage_rate:.1f}%")
-    
-#     print("\nQuality Metrics:")
-#     print(f"- Average Quality Score: {metrics.avg_quality_score:.1f}/5")
-#     print(f"- High Quality Videos: {metrics.high_quality_count}")
-#     print(f"- Quality Pass Rate: {metrics.quality_rate:.1f}%")
-    
-#     print("\nDetailed Quality Analysis:")
-#     for video_id in video_df['video_id']:
-#         score = metrics.quality_scores.get(video_id, 0)
-#         reason = metrics.quality_reasons.get(video_id, "N/A")
-#         title = video_df[video_df['video_id'] == video_id]['title'].iloc[0]
-#         print(f"\nVideo: {title}")
-#         print(f"- Quality Score: {score}/5")
-#         print(f"- Reason: {reason}")
-#         if video_id in metrics.failed_videos:
-#             print(f"- Status: ❌ Failed - {metrics.failure_reasons[video_id]}")
-#         else:
-#             print(f"- Status: ✅ Passed")
-    
-#     return metrics
-
-# metrics = analyze_stored_videos()

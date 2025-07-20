@@ -8,9 +8,10 @@ This script provides comprehensive evaluation of stored YouTube data including:
 - Performance metrics
 - Detailed reporting and recommendations
 
-python eval.py --list.                           # List datasets
-python eval.py --topic "how_to_make_mayonnaise"  # Evaluate specific topic
-python eval.py --all                             # Evaluate all datasets
+python eval.py --list                               # See what data you have
+python eval.py --topic "how_to_make_mayonnaise"     # Evaluate a specific topic
+python eval.py --all                                # Evaluate all available datasets    
+python eval.py --topic "langchain" --export         # Export results to JSON
 
 """
 
