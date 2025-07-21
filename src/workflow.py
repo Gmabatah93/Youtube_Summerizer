@@ -7,6 +7,11 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langgraph.graph import StateGraph, END
 from langsmith import traceable
 from src.rag_evaluation import evaluate_rag_response
+from src.rag_post_processing import (
+    post_process_documents,
+    rerank_documents,
+    aggregate_and_compress
+)
 
 import uuid
 from src.prompts import get_decision_prompt, get_rag_prompt, get_direct_prompt
@@ -60,18 +65,51 @@ def create_youtube_rag_chain(vectorstore: Any, llm: BaseChatModel):
             state["error"] = f"Decision error: {str(e)}"
             return state
 
-    @traceable(run_type="retriever", name="Chroma Retrieval")
+    @traceable(run_type="retriever", name="Enhanced Chroma Retrieval")
     def retrieve(state: YouTubeRAGState) -> YouTubeRAGState:
-        """Retrieve documents if needed."""
-        print("=" * 10 + "RETRIEVE NODE" + "=" * 10)
+        """Enhanced document retrieval with post-processing and reranking."""
+        print("=" * 10 + "ENHANCED RETRIEVE NODE" + "=" * 10)
         try:
             if state["action"] == Action.SEARCH_VIDEOS.value:
-                docs = vectorstore.similarity_search(state["query"], k=5)
-                state["context"] = docs
-                print(f"Retrieved {len(docs)} documents for context")
+                # Step 1: Initial retrieval (get more candidates)
+                print("Step 1: Getting initial candidates...")
+                raw_docs = vectorstore.similarity_search_with_score(state["query"], k=15)
+                print(f"Found {len(raw_docs)} initial candidates")
+                
+                # Step 2: Post-process and filter
+                print("Step 2: Post-processing and filtering...")
+                processed_docs = post_process_documents(raw_docs, state["query"])
+                print(f"After filtering: {len(processed_docs)} quality documents")
+                
+                # Step 3: Rerank by relevance and metadata
+                print("Step 3: Reranking by metadata and relevance...")
+                reranked_docs = rerank_documents(processed_docs, state["query"])
+                print(f"Reranked {len(reranked_docs)} documents")
+                
+                # Step 4: Aggregate and compress context
+                print("Step 4: Aggregating and compressing context...")
+                final_context = aggregate_and_compress(reranked_docs[:5], state["query"])
+                
+                state["context"] = final_context
+                print(f"Final context: {len(final_context)} aggregated documents")
+                
+                # Log final context for debugging
+                for i, doc in enumerate(final_context):
+                    title = doc.metadata.get('title', 'Unknown')[:50]
+                    author = doc.metadata.get('author', 'Unknown')
+                    aggregated = doc.metadata.get('aggregated', False)
+                    print(f"  Doc {i+1}: {title}... by {author} {'(aggregated)' if aggregated else ''}")
             return state
         except Exception as e:
-            state["error"] = f"Retrieval error: {str(e)}"
+            print(f"Enhanced retrieval failed: {str(e)}")
+            print("Falling back to basic retrieval...")
+            # Fallback to basic retrieval
+            try:
+                docs = vectorstore.similarity_search(state["query"], k=5)
+                state["context"] = docs
+                print(f"Fallback: Retrieved {len(docs)} documents")
+            except Exception as fallback_error:
+                state["error"] = f"Both enhanced and fallback retrieval failed: {str(fallback_error)}"
             return state
 
     def generate_response(state: YouTubeRAGState) -> YouTubeRAGState:

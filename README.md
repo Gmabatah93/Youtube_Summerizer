@@ -28,6 +28,7 @@ This initial, one-time process is triggered when a user provides a topic and cli
    - Preserves semantic meaning
 
 5. **Vectorization & Storage** (`vectorstore.py`)
+   - Stores raw & metadata in the local system (json / .csv)
    - Converts text chunks to vectors using OpenAI embeddings
    - Stores vectors in ChromaDB database
    - Creates searchable knowledge base

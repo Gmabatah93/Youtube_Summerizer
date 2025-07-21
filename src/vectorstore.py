@@ -14,14 +14,19 @@ def process_documents_recursive(video_df):
     # Clean and combine content
     video_df = video_df.fillna({"transcript": "", "view_count": 0})
     
-    # Create documents with essential metadata
+    # Create documents with enhanced metadata for post-processing
     documents = [
         Document(
             page_content=f"Title: {row['title']}\nTranscript: {row['transcript']}",
             metadata={
                 'video_id': str(row['video_id']),
                 'title': str(row['title']),
-                'url': str(row['url'])
+                'url': str(row['url']),
+                'author': str(row.get('author', 'Unknown')),
+                'view_count': int(row.get('view_count', 0)),
+                'publish_time': str(row.get('publish_time', '')),
+                'content_length': len(str(row.get('transcript', ''))),
+                'has_transcript': bool(str(row.get('transcript', '')).strip())
             }
         )
         for _, row in video_df.iterrows()
@@ -60,14 +65,19 @@ def process_documents_semantic(video_df, embedding_model):
     # Clean and combine content
     video_df = video_df.fillna({"transcript": "", "view_count": 0})
     
-    # Create documents with essential metadata
+    # Create documents with enhanced metadata for post-processing
     documents = [
         Document(
             page_content=f"Title: {row['title']}\nTranscript: {row['transcript']}",
             metadata={
                 'video_id': str(row['video_id']),
                 'title': str(row['title']),
-                'url': str(row['url'])
+                'url': str(row['url']),
+                'author': str(row.get('author', 'Unknown')),
+                'view_count': int(row.get('view_count', 0)),
+                'publish_time': str(row.get('publish_time', '')),
+                'content_length': len(str(row.get('transcript', ''))),
+                'has_transcript': bool(str(row.get('transcript', '')).strip())
             }
         )
         for _, row in video_df.iterrows()
