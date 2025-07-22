@@ -33,6 +33,7 @@ def create_youtube_rag_chain(vectorstore: Any, llm: BaseChatModel):
     print("=" * 20 + "LANGGRAPH" + "=" * 20)
     print("=" * 30)
 
+    @traceable(run_type="llm", metadata={"llm": llm.model_name})
     def decide_action(state: YouTubeRAGState) -> YouTubeRAGState:
         """Decide whether to use vectorstore based on explicit YouTube mention."""
         print("=" * 10 + "DECIDE NODE" + "=" * 10)
@@ -74,6 +75,7 @@ def create_youtube_rag_chain(vectorstore: Any, llm: BaseChatModel):
             state["error"] = f"Retrieval error: {str(e)}"
             return state
 
+    @traceable(run_type="llm", metadata={"llm": llm.model_name})
     def generate_response(state: YouTubeRAGState) -> YouTubeRAGState:
         """Generate response based on action and context."""
         print("=" * 10 + "GENERATE NODE" + "=" * 10)
