@@ -96,12 +96,6 @@ REASON: Clear content, minor formatting issues"
 
 ## 🛠️ How to Use the Evaluation System
 
-### Quick Test Run
-```bash
-# Test evaluation on existing data
-python test_eval.py
-```
-
 ### Comprehensive Analysis  
 ```bash
 # See what data you have
@@ -176,14 +170,37 @@ data/youtube_data/        # Source data to evaluate
 - Your data collection is working well!
 - Focus on improving the RAG retrieval/generation components
 
-## 🔄 Future Enhancements
+## 🔄 Future Enhancements: Production Pipeline
+![Picture](image/RagEvaluation.png)
+source: https://huggingface.co/learn/cookbook/en/rag_evaluation
 
-**Phase 1** (Current): Basic quality and coverage analysis
-**Phase 2** (Future): 
-- Real-time quality filtering during data collection
-- A/B testing for different content sources
-- Automated alerts when quality drops
-- Integration with the main app for content filtering
+### Retriever Improvements
+- **Query Reformulation:** Not implemented (user queries are used as-is)
+- **Metadata Usage in Search:** Metadata is stored but not yet utilized in retrieval  
+   _Planned upgrade: Incorporate metadata to improve search relevance_
+
+### Reader Enhancements
+
+1. **Post-Processing**
+      - **Document Filtering:** Remove irrelevant or low-quality chunks
+      - **Deduplication:** Merge similar or overlapping content
+      - **Content Cleaning:** Eliminate noise and formatting artifacts
+
+2. **Aggregation**
+      - **Content Summarization:** Compress multiple chunks into key points
+      - **Context Fusion:** Merge related information from different sources
+      - **Hierarchical Organization:** Structure information by relevance or topic
+
+3. **Prompt Compression**
+      - **Token Optimization:** Reduce context length while preserving meaning
+      - **Relevance Ranking:** Order content by importance
+      - **Smart Truncation:** Retain the most relevant parts if context exceeds limits
+
+4. **Reranking**
+      - **Semantic Reranking:** Reorder results based on actual relevance to the query
+      - **Cross-Encoder Models:** Apply specialized models for improved ranking
+      - **Metadata Boosting:** Adjust ranking using source quality and authority
+
 
 ## 💡 Pro Tips
 
