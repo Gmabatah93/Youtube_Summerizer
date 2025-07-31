@@ -11,8 +11,16 @@
 
 # Evaluation
 - **Datasets:** test inputs *(expected outputs)*
+    1. Historical Traces
+    2. Dataset curation
+        - build for each node
 - **Target Function:** defines what your evaluating
-- **Evaluators:** score your target functions output
+- **Evaluators:** score your target functions output (Accuracy, Hallucination)
+![Picture](image/EvaluatorsLangSmith.png)
+    1. Human
+    2. Heuristic
+    3. LLM-as-a-Judge
+    4. Pairwise
 - **Evaluators RAG:**
     1. Correctness: Response vs reference answer
         - Goal: Measure "how similar/correct is the RAG chain answer, relative to a ground-truth answer"
@@ -30,3 +38,6 @@
         - Goal: Measure "how relevant are my retrieved results for this query"
         - Mode: Does not require reference answer, because it will compare the question to the retrieved context
         - Evaluator: Use LLM-as-judge to assess relevance
+
+- **Experiment:** 
+![Picture](image/ExperimentLangSmith.png)
