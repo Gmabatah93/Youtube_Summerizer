@@ -2,6 +2,7 @@ from src.youtube import search_videos, get_video_details, store_video_details
 from src.vectorstore import process_documents_recursive, process_documents_semantic, create_chroma_vectorstore
 from src.utils import _format_collection_name
 from src.workflow import run_rag_chain
+from src.workflow_HUB import run_rag_chain_with_langsmith
 
 # Import all necessary chat model classes
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI

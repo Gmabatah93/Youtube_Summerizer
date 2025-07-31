@@ -5,10 +5,12 @@ from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.documents import Document
 from langchain_core.language_models.chat_models import BaseChatModel
 from langgraph.graph import StateGraph, END
-from langsmith import traceable
+from langsmith import traceable, Client
 from src.rag_evaluation import evaluate_rag_response
 
 import uuid
+import os
+
 from src.prompts import get_decision_prompt, get_rag_prompt, get_direct_prompt
 
 class Action(Enum):
@@ -33,6 +35,9 @@ def create_youtube_rag_chain(vectorstore: Any, llm: BaseChatModel):
     print("=" * 20 + "LANGGRAPH" + "=" * 20)
     print("=" * 30)
 
+    # Initialize LangSmith client
+    client = Client(api_key=os.getenv("LANGSMITH_API_KEY"))
+
     @traceable(run_type="llm", metadata={"llm": llm.model_name})
     def decide_action(state: YouTubeRAGState) -> YouTubeRAGState:
         """Decide whether to use vectorstore based on explicit YouTube mention."""
@@ -45,9 +50,15 @@ def create_youtube_rag_chain(vectorstore: Any, llm: BaseChatModel):
                 return state
 
             print(f"YouTube mention found")
-            decision_prompt = get_decision_prompt()
-            # The llm object is already initialized and ready to use
-            chain = decision_prompt | llm
+
+            # GET PROMPT
+            # - Local
+            prompt = get_decision_prompt()
+            # - PromptHUB
+            # prompt = client.pull_prompt("router_prompt", include_model=True)
+            
+            # CREATE CHAIN
+            chain = prompt | llm
             result = chain.invoke({"query": state["query"]})
             
             state["action"] = (
