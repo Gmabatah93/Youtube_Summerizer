@@ -1,23 +1,20 @@
 # How the YouTube Summarizer Works: A Detailed Breakdown
 
-## Product Overview
+## Overview
 
-### Vision Statement
-To create an intelligent YouTube content analysis tool that transforms speech-heavy video content into searchable, conversational knowledge bases, enabling users to efficiently extract insights from podcast-style YouTube content.
+**Vision Statement**
+- To create an intelligent YouTube content analysis tool that transforms speech-heavy video content into searchable, conversational knowledge bases, enabling users to efficiently extract insights from podcast-style YouTube content.
 
-### Mission
-Democratize access to knowledge by making YouTube's vast repository of educational and discussion-based content easily searchable and conversable through AI-powered transcript analysis.
+**Mission**
+- Democratize access to knowledge by making YouTube's vast repository of educational and discussion-based content easily searchable and conversable through AI-powered transcript analysis.
 
-### Product Description
-The YouTube Summarizer is a RAG (Retrieval-Augmented Generation) application that processes YouTube video transcripts to create intelligent chatbots capable of answering questions about specific topics. Users can search for videos on any topic, and the system builds a specialized knowledge base that can be queried conversationally.
-
-**📢 Important Note on Content Type:**
+**Product Description**
+- The YouTube Summarizer is a RAG (Retrieval-Augmented Generation) application that processes YouTube video transcripts to create intelligent chatbots capable of answering questions about specific topics. Users can search for videos on any topic, and the system builds a specialized knowledge base that can be queried conversationally.
+- **📢 Important Note on Content Type:**
 This YouTube Summarizer is optimized for **audio-heavy, speech-based content** such as podcasts, interviews, discussions, and lectures. Since the system relies on YouTube transcripts for analysis, it performs best with content where spoken dialogue is the primary information source.
-
-**Best Performance:** Podcasts, interviews, educational lectures, discussions
-**Limited Performance:** Visual tutorials, cooking shows, DIY videos, content with heavy visual demonstrations
-
-For optimal results, search for topics that are commonly discussed in podcast or interview formats.
+- **Best Performance:** Podcasts, interviews, educational lectures, discussions
+- **Limited Performance:** Visual tutorials, cooking shows, DIY videos, content with heavy visual demonstrations
+- For optimal results, search for topics that are commonly discussed in podcast or interview formats.
 
 ## Phase 1: The Setup - Building the Knowledge Base 🏗️
 This initial, one-time process is triggered when a user provides a topic and clicks "Create RAG Assistant." Its sole purpose is to gather information and build a specialized knowledge library, or "brain," for the AI to use.
