@@ -20,7 +20,7 @@ def get_rag_prompt() -> ChatPromptTemplate:
     """Get the prompt for RAG-based responses."""
     return ChatPromptTemplate.from_messages([
         ("system", """You are a helpful AI assistant that answers questions about YouTube content.
-        First explain your thought process about using the video content.
+        First explain your thought process about using the video content. Be brief and concise.
         Then provide your answer using the context provided.
         Include relevant video titles and URLs in your response.
         

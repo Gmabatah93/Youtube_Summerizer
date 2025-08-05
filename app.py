@@ -95,9 +95,11 @@ if not st.session_state.chat_ready:
                 timestamp=datetime.now().strftime("%Y%m%d_%H%M%S")
             )
 
+            # - prepare session state df 
             video_df["Video Title"] = video_df.apply(lambda row: f"[{row['title']}](https://www.youtube.com/watch?v={row['video_id']})", axis=1)
             st.session_state["video_df_display"] = video_df[["Video Title", "author", "publish_time", "view_count"]]
 
+            # - create RAG vectorstore
             chunks = process_documents_semantic(video_df=video_df, embedding_model=EMBEDDING)
             formatted_topic = _format_collection_name(topic)
             st.session_state.vectorstore = create_chroma_vectorstore(chunks, EMBEDDING, topic=formatted_topic)
