@@ -1,5 +1,6 @@
 # Ignore data folder
 data/
+Evaluation/
 # Ignore Python cache files
 __pycache__/
 
