@@ -1,5 +1,5 @@
 # How the YouTube Summarizer Works: A Detailed Breakdown
-
+![Picture](image/SystemArchitecture.png)
 ## Overview
 
 **Vision Statement**
@@ -71,9 +71,6 @@ This initial, one-time process is triggered when a user provides a topic and cli
 
 5. **Final Output** (`app.py`)
    - Displays response in Streamlit chat window
-
-## System Architecture
-![Picture](image/SystemArchitecture.png)
 
 ## Technical Stack
 - **Frontend:** Streamlit
