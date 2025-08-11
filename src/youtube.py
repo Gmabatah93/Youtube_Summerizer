@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import json
 
 load_dotenv()
+PODCAST_CATEGORY_ID = 22  # YouTube category ID for podcasts
 
 def search_videos(topic, api_key, max_results=20):
     """
@@ -31,7 +32,8 @@ def search_videos(topic, api_key, max_results=20):
             q=topic,
             part='id,snippet',
             maxResults=max_results,
-            type='video'
+            type='video',
+            videoCategoryId=PODCAST_CATEGORY_ID
         )
         search_response = search_request.execute()
         
