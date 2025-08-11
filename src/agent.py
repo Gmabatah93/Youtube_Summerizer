@@ -26,6 +26,7 @@ class YouTubeRAGState(TypedDict):
     action: str
     thought: str
     thread_id: str  
+    url: List[str]  # New field to store relevant YouTube URLs
 
 # The function now accepts an instantiated llm object instead of a model_name string
 def create_youtube_rag_chain(vectorstore: Any, llm: BaseChatModel):
@@ -79,6 +80,7 @@ def create_youtube_rag_chain(vectorstore: Any, llm: BaseChatModel):
             if state["action"] == Action.SEARCH_VIDEOS.value:
                 docs = vectorstore.similarity_search(state["query"], k=5)
                 state["context"] = docs
+                state["url"] = [doc.metadata.get("url") for doc in docs if "url" in doc.metadata]
                 print(f"Retrieved {len(docs)} documents for context")
             return state
         except Exception as e:
@@ -107,11 +109,17 @@ def create_youtube_rag_chain(vectorstore: Any, llm: BaseChatModel):
 
             chain = prompt | llm
                 
-            state["response"] = chain.invoke({
+            response = chain.invoke({
                 "context": "\n".join(doc.page_content for doc in state["context"]) if state["context"] else "",
                 "chat_history": chat_history,
                 "query": state["query"]
             }).content
+            
+            # Append URLs to the response if available
+            if state["url"]:
+                response += "\n\nSources:\n" + "\n".join(state["url"])
+            
+            state["response"] = response
             
             return state
         except Exception as e:

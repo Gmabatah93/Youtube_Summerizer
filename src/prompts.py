@@ -19,10 +19,8 @@ def get_decision_prompt() -> ChatPromptTemplate:
 def get_rag_prompt() -> ChatPromptTemplate:
     """Get the prompt for RAG-based responses."""
     return ChatPromptTemplate.from_messages([
-        ("system", """You are a helpful AI assistant that answers questions about YouTube content.
-        First explain your thought process about using the video content. Be brief and concise.
-        Then provide your answer using the context provided.
-        Include relevant video titles and URLs in your response.
+        ("system", """You are a helpful AI assistant that provides concise answers based on the given context.
+        Use the provided context to answer the query directly. If citing a YouTube video is necessary, include only the most relevant video title and URL as a source.
         
         Context: {context}"""),
         MessagesPlaceholder(variable_name="chat_history"),

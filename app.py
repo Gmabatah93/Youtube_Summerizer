@@ -74,7 +74,7 @@ if "selected_model" not in st.session_state:
 # ==============================
 if not st.session_state.chat_ready:
     st.subheader("🔍 Search for YouTube Videos")
-    topic = st.text_input("Enter the topic you want to search for:", placeholder="e.g., 'LangChain Agents'")
+    topic = st.text_input("Enter the topic you want to search for use. If you want to filter for a specific channel use @", placeholder="e.g., Financial Literacy @TheDiaryOfACEO")
     max_results = st.slider("Select the number of videos to process:", min_value=1, max_value=20, value=5)
     submit_button = st.button("Create RAG Assistant")
 
