@@ -2,12 +2,6 @@
 ![Picture](image/SystemArchitecture.png)
 ## Overview
 
-**Vision Statement**
-- To create an intelligent YouTube content analysis tool that transforms speech-heavy video content into searchable, conversational knowledge bases, enabling users to efficiently extract insights from podcast-style YouTube content.
-
-**Mission**
-- Democratize access to knowledge by making YouTube's vast repository of educational and discussion-based content easily searchable and conversable through AI-powered transcript analysis.
-
 **Product Description**
 - The YouTube Summarizer is a RAG (Retrieval-Augmented Generation) application that processes YouTube video transcripts to create intelligent chatbots capable of answering questions about specific topics. Users can search for videos on any topic, and the system builds a specialized knowledge base that can be queried conversationally.
 - **📢 Important Note on Content Type:**

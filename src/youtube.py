@@ -17,6 +17,7 @@ def search_videos(topic, api_key, max_results=20):
     
     Args:
         topic (str): The topic or keyword to search for videos on YouTube.
+        channel_id (str, optional): The channel ID to filter results.
         api_key (str): The API key for accessing the YouTube Data API.
         max_results (int, optional): The maximum number of video results to retrieve. Defaults to 20.
 
@@ -33,7 +34,8 @@ def search_videos(topic, api_key, max_results=20):
             part='id,snippet',
             maxResults=max_results,
             type='video',
-            videoCategoryId=PODCAST_CATEGORY_ID
+            videoCategoryId=PODCAST_CATEGORY_ID,
+            videoDuration='long',
         )
         search_response = search_request.execute()
         
@@ -145,8 +147,6 @@ def get_video_details(video_ids, api_key, delay: float = 1.0):
     return video_df
 
 
-
-
 def store_video_details(
     video_df: pd.DataFrame,
     topic: str,
@@ -236,9 +236,12 @@ def load_video_details(topic: str = None, timestamp: str = None, base_path: str 
     
     return video_df
 
-# # Test the function
+
+
+        
+# Test the function
 # video_ids = search_videos(
-#     topic="How to make mayonnaise",
+#     topic="Financial Freedom @TheDiaryOfACEO",  # Example topic
 #     api_key=os.environ['YOUTUBE_API_KEY'],
 #     max_results=3
 # )

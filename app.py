@@ -38,24 +38,22 @@ st.set_page_config(page_title="🎬 Youtube Summarizer", layout="wide")
 st.title("🎬 Youtube Summarizer")
 with st.expander("⚠️ Important: Content Type & Beta Notice", expanded=False):
     st.markdown("""
-    **Current Status**: This application is in active development
-    
     **Content Type Limitations**:
     - **Best Performance**: Podcast-style content, interviews, discussions, and audio-focused videos
-    - **Limited Performance**: Visual tutorials, cooking shows, DIY videos, and content relying heavily on visual demonstrations
+    - **Limited Performance**: Visual tutorials and content relying heavily on visual demonstrations
     - **Why**: This tool analyzes YouTube transcripts, making it ideal for speech-heavy content rather than visual content
     
+    **Filters**:
+    - The search function currently filters for podcasts and long videos over (20 minutes).
+                
     **Known Technical Limitations**:
     - Performance may vary depending on video length and quantity
-    - Processing times may be longer than expected for large datasets
-    - Some features are still being optimized
-    
-    **What's Coming**:
-    - Enhanced content type filtering to automatically prioritize audio-rich content
-    - Improved video selection algorithms
-    - Better performance optimization
-    - Content suitability scoring and recommendations
-    
+    - Every video may not have a transcript available
+    - Given the filters above, videos with heavy visual may still come up which may not yield the best results.
+
+    **Whats Coming**
+    - Channel specific search  
+
     **Tip**: For best results, search for podcasts, interviews, lectures, or discussion-based content rather than visual tutorials.
     
     We appreciate your understanding and feedback as we continue to improve this tool!
