@@ -80,8 +80,10 @@ def create_youtube_rag_chain(vectorstore: Any, llm: BaseChatModel):
             if state["action"] == Action.SEARCH_VIDEOS.value:
                 docs = vectorstore.similarity_search(state["query"], k=5)
                 state["context"] = docs
-                state["url"] = [doc.metadata.get("url") for doc in docs if "url" in doc.metadata]
-                print(f"Retrieved {len(docs)} documents for context")
+                # De-duplicate URLs while preserving order
+                urls = [doc.metadata.get("url") for doc in docs if doc.metadata.get("url")]
+                state["url"] = list(dict.fromkeys(urls))
+                print(f"Retrieved {len(docs)} documents; unique URLs: {len(state['url'])}")
             return state
         except Exception as e:
             state["error"] = f"Retrieval error: {str(e)}"
@@ -92,6 +94,12 @@ def create_youtube_rag_chain(vectorstore: Any, llm: BaseChatModel):
         """Generate response based on action and context."""
         print("=" * 10 + "GENERATE NODE" + "=" * 10)
         try:
+            # If we chose to search but have no context, avoid hallucination
+            if state["action"] == Action.SEARCH_VIDEOS.value and not state["context"]:
+                state["response"] = "I couldn't find relevant transcript content for this query in the retrieved YouTube videos. Please refine the query."
+                return state
+            
+            # Prepare chat history for the LLM
             chat_history = []
             for msg in state["chat_history"]:
                 if msg["role"] == "human":
@@ -109,7 +117,7 @@ def create_youtube_rag_chain(vectorstore: Any, llm: BaseChatModel):
 
             chain = prompt | llm
                 
-            response = chain.invoke({
+            state['response'] = chain.invoke({
                 "context": "\n".join(doc.page_content for doc in state["context"]) if state["context"] else "",
                 "chat_history": chat_history,
                 "query": state["query"]
@@ -117,9 +125,8 @@ def create_youtube_rag_chain(vectorstore: Any, llm: BaseChatModel):
             
             # Append URLs to the response if available
             if state["url"]:
-                response += "\n\nSources:\n" + "\n".join(state["url"])
+                state['response'] += "\n\nSources:\n" + "\n".join(state["url"])
             
-            state["response"] = response
             
             return state
         except Exception as e:
@@ -163,7 +170,9 @@ def run_rag_chain(
         response="",
         error="",
         action="",
-        thought=""
+        thought="",
+        thread_id=thread_id,
+        url=[]  # Initialize URL list
     )
     
     # Pass the llm object directly to the chain creator
