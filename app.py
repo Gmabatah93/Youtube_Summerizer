@@ -50,6 +50,7 @@ with st.expander("⚠️ Important: Content Type & Beta Notice", expanded=False)
     - Performance may vary depending on video length and quantity
     - Every video may not have a transcript available
     - Given the filters above, videos with heavy visual may still come up which may not yield the best results.
+    - @Channel search is not working correctly yet
 
     **Whats Coming**
     - Channel specific search  
