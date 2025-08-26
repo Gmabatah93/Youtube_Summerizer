@@ -1,3 +1,8 @@
+"""
+This application's core strength is its ability to create a searchable knowledge base from spoken content (videos, meetings, calls).
+Which can be incredibly valuable for internal knowledge management.
+"""
+
 from src.youtube import search_videos, get_video_details, store_video_details
 from src.vectorstore import process_documents_recursive, process_documents_semantic, create_chroma_vectorstore
 from src.utils import _format_collection_name
